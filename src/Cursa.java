@@ -37,6 +37,7 @@ public class Cursa {
 
     public int compareHour(Cursa cursa){
         return this.start.getHour() - cursa.start.getHour();
+        //return this.start.compareTo(cursa.start);
     }
 
 

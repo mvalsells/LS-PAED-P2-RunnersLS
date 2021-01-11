@@ -1,13 +1,17 @@
 import java.io.FileNotFoundException;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.stream.IntStream;
 
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
-        ArrayList<Atleta> atletas = Json.llegirAtletes();
-        ArrayList<Cursa> curses = Json.llegirCurses();
+        final ArrayList<Atleta> atletas = Json.llegirAtletes();
+        final ArrayList<Cursa> curses = Json.llegirCurses();
 
+        //Comparator<Cursa> comparaDurada = (Cursa r1, Cursa r2) -> (r1.compareDuration(r2));
+        //curses.sort(comparaDurada);
 
         for (Atleta atleta: atletas){
             //System.out.println(atleta.toString());
@@ -18,29 +22,69 @@ public class Main {
             //System.out.println(cursa.toString());
         }
 
-
+        /*
+        for (int i = 0; i < configCurses.length; i++) {
+            if(configCurses[i] == 1){
+                System.out.println(curses.get(i));
+            }
+        }
+         */
         gestioHoraris(curses);
+
     }
 
+    public static boolean areAllTrue(boolean[] array)
+    {
+        for(boolean b : array) if(!b) return false;
+        return true;
+    }
+
+    //Preguntar si cursa pot ser > 24h
     public static int gestioHoraris(ArrayList<Cursa> curses){
-       int numCurses=0;
-        LocalTime fiUltimacursa = LocalTime.parse("00:00");
-        //Greedy
+        int[] configCurses = new int[curses.size()];
+        boolean[] cursesDescartades = new boolean[curses.size()];
+        int numCurses=0;
 
-        Comparator<Cursa> comparaDurada = (Cursa r1, Cursa r2) -> (r1.compareDuration(r2));
-        curses.sort(comparaDurada);
+        int j = 0;
 
+        while(!areAllTrue(cursesDescartades)){
 
+            Comparator<Cursa> comparaDurada = (Cursa r1, Cursa r2) -> (r1.compareDuration(r2));
+            curses.sort(comparaDurada);
+            //Busquem i descartem minim
+            if(!cursesDescartades[j]){
+                //Agafem cursaMinima
+                Cursa cursaMinima = curses.get(j);
+                cursesDescartades[j] = true;
+                configCurses[j] = 1;
 
-        Comparator<Cursa> comparaHora = (Cursa r1, Cursa r2) -> (r1.compareHour(r2));
-        curses.sort(comparaHora);
+                //Busquem solapaments
+                for(int i = 0; i < curses.size(); i++){
+                    //Mirem que cursa no esta descartada
+                    if(!cursesDescartades[i]){
+                        //Comprovem que no es solapi
+                        if((curses.get(i).getStart().isAfter(cursaMinima.getStart()) && curses.get(i).getStart().isBefore(cursaMinima.getEnd())) || //comença a l'interval de cursaMinima
+                                (curses.get(i).getStart().isBefore(cursaMinima.getStart() )&& curses.get(i).getEnd().isAfter(cursaMinima.getEnd())) ||   //engolba a l'interval de cursaMinima
+                                (curses.get(i).getEnd().isAfter(cursaMinima.getStart()) && curses.get(i).getEnd().isBefore(cursaMinima.getEnd()))){      //acaba a l'interval de cursaMinima
 
-        for (Cursa cursa : curses){
-            System.out.println("Duration:  " + cursa.getDuration());
-            System.out.println("Start time:   " + cursa.getStart());
-            System.out.println("End time:     " + cursa.getEnd());
-            System.out.println("_________________");
+                            cursesDescartades[i] = true;
+
+                        }
+                    }
+                }
+            }
+            j++;
         }
+
+        //Printem les curses
+        for (int i = 0; i < configCurses.length; i++) {
+            if(configCurses[i] == 1){
+                System.out.println(curses.get(i).getStart() + "  " + curses.get(i).getEnd() +  "  "  + curses.get(i).getName() + "  Duration:  " +  curses.get(i).getDuration());
+            }
+        }
+        //Màxim numero de curses sense que es solapin
+        numCurses = IntStream.of(configCurses).sum();
+        System.out.println("\nNum curses: "+ numCurses);
         return numCurses;
     }
 }
