@@ -21,6 +21,7 @@ public class Main {
 
         //Backtracking
         cursesIndividuals(5);
+        System.out.println("La millor combinació per la cursa individual és: " + Arrays.toString(Globals.bestEstimateConfig));
 
         //Greedy OK
         //gestioHoraris(curses);
@@ -79,46 +80,47 @@ public class Main {
     }
 
 
-    public static int[] cursesIndividuals(int numEsforços){
-        int[] config = new int[numEsforços];
-        int esforç = 0;
-        boolean[] utilitzats = new boolean[numEsforços];
-        RaceHelper.init(numEsforços);
-        backtracking(config, esforç, numEsforços, utilitzats);
-        return config;
+    public static void cursesIndividuals(int numTrams){
+        int[] config = new int[numTrams];
+        int tram = 0;
+        boolean[] utilitzats = new boolean[numTrams];
+        RaceHelper.init(numTrams);
+        backtracking(config, tram, numTrams, utilitzats);
     }
 
-    private static void backtracking(int[] config, int esforçActual, int numEsforços, boolean[] utilitzats) {
-        config[esforçActual]=1;
-        while (config[esforçActual]<=numEsforços){
+    private static void backtracking(int[] config, int tramActual, int numTrams, boolean[] utilitzats) {
+        config[tramActual]=1;
+        while (config[tramActual]<=numTrams){
             //Si no l'he utilitzat provo una combinació amb ell
-            if (!utilitzats[config[esforçActual]-1]){
-                //Marco que ja he utilitzat aquest esforçActual
-                utilitzats[config[esforçActual]-1] = true;
-                long estimate = Math.abs(RaceHelper.estimate(config,esforçActual));
+            if (!utilitzats[config[tramActual]-1]){
+                //Marco que ja he utilitzat aquest tramActual
+                utilitzats[config[tramActual]-1] = true;
+                //TODO Fer valor absolut o no?
+                long estimate = Math.abs(RaceHelper.estimate(config,tramActual));
 
-                if (esforçActual == numEsforços-1) {
+                if (tramActual == numTrams-1) {
                     //Ja tenim tots els nombres d'esforços posats
                     //Tenim una possible solució
                     //Si és la millor fins ara guardem la informació
-                    System.out.println(Arrays.toString(config) +" Estimate: "+ estimate);
+                    //System.out.println(Arrays.toString(config) +" Estimate: "+ estimate);
                     if (estimate<Globals.bestEstimate) {
                         Globals.bestEstimate=estimate;
-                        Globals.bestEstimateConfg=config.clone();
-                        System.out.println("Millor solució ");
+                        Globals.bestEstimateConfig=config.clone();
+                        //System.out.println("Millor solució ");
                     }
                 } else {
                     if (estimate<Globals.bestEstimate){
-                        backtracking(config, esforçActual+1, numEsforços, utilitzats);
+                        backtracking(config, tramActual+1, numTrams, utilitzats);
                     } else {
-                        System.err.println("Poda");
+                        //Poda
+                        //System.err.println(Arrays.toString(config) +" Estimate: "+ estimate);
                     }
                 }
 
-                //Ja he fet totes les combinacions amb l'esforçActual x, el desmarco
-                utilitzats[config[esforçActual]-1] = false;
+                //Ja he fet totes les combinacions amb l'tramActual x, el desmarco
+                utilitzats[config[tramActual]-1] = false;
             }
-            config[esforçActual]++;
+            config[tramActual]++;
         }
     }
 
