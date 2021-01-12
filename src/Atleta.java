@@ -8,6 +8,9 @@ public class Atleta {
     private final float time;
     private final String type;
     private final float avgVel;
+    private static int numSprinter=0;
+    private static int numLongDistance=0;
+    private static int numTrailRunner=0;
 
     //Constructor
     public Atleta(String name, String lastName, int age, String nation, float distance, float time, String type) {
@@ -19,8 +22,43 @@ public class Atleta {
         this.time = time;
         this.type = type;
         avgVel=distance/time;
+        switch (this.type){
+            case ("Sprinter"): {
+                numSprinter++;
+                break;
+            }
+            case ("Long distance Runner,"):{
+                numLongDistance++;
+                break;
+            }
+            case ("Trail Runner"):{
+                numTrailRunner++;
+                break;
+            }
+            default:{
+                System.err.println("Error, tipus d'atleta desconegut");
+            }
+        }
     }
 
+    public static int getNumSprinter() {
+        return numSprinter;
+    }
+
+    public static int getNumLongDistance() {
+        return numLongDistance;
+    }
+
+    public static int getNumTrailRunner() {
+        return numTrailRunner;
+    }
+
+    public float getAvgVel() {
+        return avgVel;
+    }
+    public String getType(){
+        return type;
+    }
     @Override
     public String toString() {
         return "Atleta{" +
