@@ -2,10 +2,7 @@
 import edu.salleurl.RaceHelper;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class Main {
@@ -81,11 +78,42 @@ public class Main {
 
 
     public static void cursesIndividuals(int numTrams){
+        RaceHelper.init(numTrams);
+        /*//BackTracking
         int[] config = new int[numTrams];
         int tram = 0;
         boolean[] utilitzats = new boolean[numTrams];
-        RaceHelper.init(numTrams);
-        backtracking(config, tram, numTrams, utilitzats);
+        backtracking(config, tram, numTrams, utilitzats);*/
+
+        //Branch and Bound
+        long bestEstimate = Long.MAX_VALUE;
+        int[] bestConfig = new int[numTrams];
+        CIconfig.setNumTrams(numTrams);
+        PriorityQueue<CIconfig> cua = new PriorityQueue<>();
+        CIconfig primera = new CIconfig();
+        cua.offer(primera);
+
+        while (!cua.isEmpty()){
+            CIconfig config = cua.poll();
+            ArrayList<CIconfig> successors = config.obtenirSuccessors();
+            for (CIconfig successor:successors){
+                if (CIconfig.getNumTrams() == successor.getTramActual()){
+                    //És solució
+                    System.out.println("Config: " + Arrays.toString(successor.getConfig()) + " Estimate: "+ successor.estimate());
+                    if (successor.estimate()<bestEstimate){
+                        System.out.println("Millor configuració");
+                        bestEstimate= successor.estimate();
+                        bestConfig= successor.getConfig();
+                    }
+                } else if (successor.estimate()<bestEstimate){
+                    cua.offer(successor);
+                } else {
+                    System.err.println("Config: " + Arrays.toString(successor.getConfig()) + " Estimate: "+ successor.estimate());
+                }
+            }
+        }
+
+        System.out.println("Best config: " + Arrays.toString(bestConfig) + " Estimate: "+ bestEstimate);
     }
 
     private static void backtracking(int[] config, int tramActual, int numTrams, boolean[] utilitzats) {
