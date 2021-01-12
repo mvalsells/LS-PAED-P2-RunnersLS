@@ -1,3 +1,4 @@
+
 import java.io.FileNotFoundException;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -79,15 +80,22 @@ public class Main {
             j++;
         }
 
-        //Printem les curses
+        //Printem les curses ordenades
+        ArrayList<Cursa> cursesOrdenades = new ArrayList<>();
         for (int i = 0; i < configCurses.length; i++) {
             if(configCurses[i] == 1){
-                System.out.println(curses.get(i).getStart() + "  " + curses.get(i).getEnd() +  "  "  + curses.get(i).getName() + "  Duration:  " +  curses.get(i).getDuration());
+                cursesOrdenades.add(curses.get(i));
             }
         }
+        Comparator<Cursa> compareHour = Cursa::compareHour;
+        cursesOrdenades.sort(compareHour);
+        for (int i = 0; i < cursesOrdenades.size(); i++) {
+            System.out.println(cursesOrdenades.get(i).getStart() + "  " + cursesOrdenades.get(i).getEnd() +  "  "  + cursesOrdenades.get(i).getName() + "  Duration:  " +  cursesOrdenades.get(i).getDuration());
+        }
+
         //Màxim numero de curses sense que es solapin
         numCurses = IntStream.of(configCurses).sum();
-        System.out.println("\nNum curses: "+ numCurses);
+        System.out.println("\nNumero de curses: "+ numCurses);
         return numCurses;
     }
 }
