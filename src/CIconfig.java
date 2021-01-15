@@ -50,7 +50,6 @@ public class CIconfig implements Comparable<CIconfig> {
         for (int i=0; i< numTrams; i++){
             if (!utilitzats[i]){
                 CIconfig successor = new CIconfig(this);
-
                 successor.tramActual++;
                 successor.config[tramActual]=i+1;
                 successor.utilitzats[i] = true;

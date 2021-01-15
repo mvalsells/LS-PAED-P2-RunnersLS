@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class Json {
     public static ArrayList<Atleta> llegirAtletes() throws FileNotFoundException {
-        Reader read = new FileReader("Datasets/datasets-clubs/datasetS.json");
+        Reader read = new FileReader("Datasets/datasets-clubs/datasetXS.json");
         JsonArray array = JsonParser.parseReader(read).getAsJsonArray();
 
         ArrayList<Atleta> atletes = new ArrayList<Atleta>();
@@ -31,7 +31,7 @@ public class Json {
     }
 
     public static ArrayList<Cursa> llegirCurses() throws FileNotFoundException {
-        Reader read = new FileReader("Datasets/datasets-activities/datasetXS.json");
+        Reader read = new FileReader("Datasets/datasets-activities/datasetS.json");
         JsonArray array = JsonParser.parseReader(read).getAsJsonArray();
         ArrayList<Cursa> cureses = new ArrayList<Cursa>();
         for (JsonElement cursaElement: array){

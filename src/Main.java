@@ -10,31 +10,38 @@ public class Main {
         final ArrayList<Atleta> atletas = Json.llegirAtletes();
         final ArrayList<Cursa> curses = Json.llegirCurses();
 
-        //Comparator<Cursa> comparaDurada = (Cursa r1, Cursa r2) -> (r1.compareDuration(r2));
-        //curses.sort(comparaDurada);
-
         int option;
         Scanner scanner = new Scanner(System.in);
         do {
-            System.out.println("Menu:\n\t1) Cursa Relleus amb Backtracking (KO)\n\t2) Cursa individual amb Backtracking\n\t3) Cursa individual amb Branch and Bound\n\t4) Gestió d'horaris amb Greedy\n\t5) Sortir");
+            System.out.println("Menú principal\n\t1) Cursa relleus amb Backtracking (KO)\n\t2) Cursa individual amb Backtracking\n\t3) Cursa individual amb Branch and Bound\n\t4) Gestió d'horaris amb Greedy\n\t5) Sortir");
             System.out.print("Tria una opció: ");
             option=scanner.nextInt();
+            long startTime = System.currentTimeMillis();
+            int numTrams;
             switch (option){
                 case 1:
                     //Backtracking
                     cursaRelleus(atletas);
+                    System.out.println("Temps tardat: " + (System.currentTimeMillis()-startTime) + " milisegons");
                     break;
                 case 2:
-                    //branch and bound
-                    cursesIndividuals(5,0);
+                    System.out.print("Nombre de trams de la cursa: ");
+                    numTrams = scanner.nextInt();
+                    //BackTracking
+                    cursesIndividuals(numTrams,0);
+                    System.out.println("Temps tardat: " + (System.currentTimeMillis()-startTime) + " milisegons");
                     break;
                 case 3:
                     //branch and bound
-                    cursesIndividuals(5,1);
+                    System.out.print("Nombre de trams de la cursa: ");
+                    numTrams = scanner.nextInt();
+                    cursesIndividuals(numTrams,1);
+                    System.out.println("Temps tardat: " + (System.currentTimeMillis()-startTime) + " milisegons");
                     break;
                 case 4:
                     //Greedy OK
                     gestioHoraris(curses);
+                    System.out.println("Temps tardat: " + (double)(System.currentTimeMillis()-startTime)/1000 + " segons");
                     break;
                 case 5:
                     break;
@@ -240,11 +247,11 @@ public class Main {
         int numCurses=0;
 
         int j = 0;
-
+        Comparator<Cursa> comparaDurada = (Cursa r1, Cursa r2) -> (r1.compareDuration(r2));
+        curses.sort(comparaDurada);
         while(!areAllTrue(cursesDescartades)){
-
-            Comparator<Cursa> comparaDurada = (Cursa r1, Cursa r2) -> (r1.compareDuration(r2));
-            curses.sort(comparaDurada);
+            //Comparator<Cursa> comparaDurada = (Cursa r1, Cursa r2) -> (r1.compareDuration(r2));
+            //curses.sort(comparaDurada);
             //Busquem i descartem minim
             if(!cursesDescartades[j]){
                 //Agafem cursaMinima
@@ -254,7 +261,7 @@ public class Main {
 
                 //Busquem solapaments
                 for(int i = 0; i < curses.size(); i++){
-                    //Mirem que cursa no esta descartada
+                    //Mirem que cursa no estigui descartada primer per tal d'evitar càcluls de solapament inecessaris
                     if(!cursesDescartades[i]){
                         //Comprovem que no es solapi
                         if((curses.get(i).getStart().isAfter(cursaMinima.getStart()) && curses.get(i).getStart().isBefore(cursaMinima.getEnd())) ||     //comença a l'interval de cursaMinima
@@ -273,13 +280,14 @@ public class Main {
             j++;
         }
 
-        //Printem les curses ordenades
+        //Copiem les curses que podem assitir
         ArrayList<Cursa> cursesOrdenades = new ArrayList<>();
         for (int i = 0; i < configCurses.length; i++) {
             if(configCurses[i] == 1){
                 cursesOrdenades.add(curses.get(i));
             }
         }
+        //Ordenem per hora i printem
         Comparator<Cursa> compareHour = Cursa::compareHour;
         cursesOrdenades.sort(compareHour);
         for (int i = 0; i < cursesOrdenades.size(); i++) {
