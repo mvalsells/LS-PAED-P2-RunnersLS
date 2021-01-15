@@ -13,16 +13,36 @@ public class Main {
         //Comparator<Cursa> comparaDurada = (Cursa r1, Cursa r2) -> (r1.compareDuration(r2));
         //curses.sort(comparaDurada);
 
-        //Backtracking
-        cursaRelleus(atletas);
-
-        //branch and bound
-        //cursesIndividuals(5);
-
-        //Greedy OK
-        gestioHoraris(curses);
-
-
+        int option;
+        Scanner scanner = new Scanner(System.in);
+        do {
+            System.out.println("Menu:\n\t1) Cursa Relleus amb Backtracking (KO)\n\t2) Cursa individual amb Backtracking\n\t3) Cursa individual amb Branch and Bound\n\t4) Gestió d'horaris amb Greedy\n\t5) Sortir");
+            System.out.print("Tria una opció: ");
+            option=scanner.nextInt();
+            switch (option){
+                case 1:
+                    //Backtracking
+                    cursaRelleus(atletas);
+                    break;
+                case 2:
+                    //branch and bound
+                    cursesIndividuals(5,0);
+                    break;
+                case 3:
+                    //branch and bound
+                    cursesIndividuals(5,1);
+                    break;
+                case 4:
+                    //Greedy OK
+                    gestioHoraris(curses);
+                    break;
+                case 5:
+                    break;
+                default:
+                    System.out.println("Introudueix un nombre del 1 al 5");
+            }
+            System.out.println("--------------------------------------------------------------------------------------");
+        } while (option!=5);
     }
 
     private static void cursaRelleus(ArrayList<Atleta> atletes) {
@@ -92,10 +112,11 @@ public class Main {
         }*/
         int[] config = new int[3];
         boolean[] utilitzats = new boolean[numEquips];
-        backtracking(config,0, 26, utilitzats);
+        backtrackingRelleus(config,0, 26, utilitzats);
 
     }
-    private static void backtracking(int[] config, int atletaActual, int numAtletes, boolean[] utilitzats) {
+    //Backtracking cursa relleus KO
+    private static void backtrackingRelleus(int[] config, int atletaActual, int numAtletes, boolean[] utilitzats) {
         config[atletaActual]=0;
         while (config[atletaActual]<numAtletes){
             //Si no l'he utilitzat provo una combinació amb ell
@@ -116,7 +137,7 @@ public class Main {
                     }*/
                 } else {
                    // if (estimate<Globals.bestEstimate){
-                        backtracking(config, atletaActual+1, numAtletes, utilitzats);
+                        backtrackingRelleus(config, atletaActual+1, numAtletes, utilitzats);
                    // } else {
                         //Poda
                         //System.err.println(Arrays.toString(config) +" Estimate: "+ estimate);
@@ -131,45 +152,86 @@ public class Main {
     }
 
 
-    public static void cursesIndividuals(int numTrams){
+    public static void cursesIndividuals(int numTrams, int algorisme){
         RaceHelper.init(numTrams);
-        /*//BackTracking
-        int[] config = new int[numTrams];
-        int tram = 0;
-        boolean[] utilitzats = new boolean[numTrams];
-        backtracking(config, tram, numTrams, utilitzats);*/
 
-        //Branch and Bound
-        long bestEstimate = Long.MAX_VALUE;
-        int[] bestConfig = new int[numTrams];
-        CIconfig.setNumTrams(numTrams);
-        PriorityQueue<CIconfig> cua = new PriorityQueue<>();
-        CIconfig primera = new CIconfig();
-        cua.offer(primera);
+        if (algorisme==0){
+            //BackTracking
+            int[] configBT = new int[numTrams];
+            int tram = 0;
+            boolean[] utilitzats = new boolean[numTrams];
+            backtrackingIndividuals(configBT, tram, numTrams, utilitzats);
+            System.out.println("Best option with backtracking\nConfig: " + Arrays.toString(Globals.bestEstimateConfig) + " Estimate: "+ Globals.bestEstimate);
+        } else if (algorisme==1) {
+            //Branch and Bound
+            long bestEstimate = Long.MAX_VALUE;
+            int[] bestConfig = new int[numTrams];
+            CIconfig.setNumTrams(numTrams);
+            PriorityQueue<CIconfig> cua = new PriorityQueue<>();
+            CIconfig primera = new CIconfig();
+            cua.offer(primera);
 
-        while (!cua.isEmpty()){
-            CIconfig config = cua.poll();
-            ArrayList<CIconfig> successors = config.obtenirSuccessors();
-            for (CIconfig successor:successors){
-                if (CIconfig.getNumTrams() == successor.getTramActual()){
-                    //És solució
-                    //System.out.println("Config: " + Arrays.toString(successor.getConfig()) + " Estimate: "+ successor.estimate());
-                    if (successor.estimate()<bestEstimate){
-                      //  System.out.println("Millor configuració");
-                        bestEstimate= successor.estimate();
-                        bestConfig= successor.getConfig();
-                    }
-                } else if (successor.estimate()<bestEstimate){
-                    cua.offer(successor);
-                } /*else {
+            while (!cua.isEmpty()) {
+                CIconfig config = cua.poll();
+                ArrayList<CIconfig> successors = config.obtenirSuccessors();
+                for (CIconfig successor : successors) {
+                    if (CIconfig.getNumTrams() == successor.getTramActual()) {
+                        //És solució
+                        //System.out.println("Config: " + Arrays.toString(successor.getConfig()) + " Estimate: "+ successor.estimate());
+                        if (successor.estimate() < bestEstimate) {
+                            //  System.out.println("Millor configuració");
+                            bestEstimate = successor.estimate();
+                            bestConfig = successor.getConfig();
+                        }
+                    } else if (successor.estimate() < bestEstimate) {
+                        cua.offer(successor);
+                    } /*else {
                     System.err.println("Config: " + Arrays.toString(successor.getConfig()) + " Estimate: "+ successor.estimate());
                 }*/
+                }
             }
-        }
 
-        System.out.println("Best config: " + Arrays.toString(bestConfig) + " Estimate: "+ bestEstimate);
+            System.out.println("Best option with Branch and bound\nConfig: " + Arrays.toString(bestConfig) + " Estimate: " + bestEstimate);
+        } else {
+            System.err.println("Número de algorisme inesperat");
+        }
     }
 
+    private static void backtrackingIndividuals(int[] config, int tramActual, int numTrams, boolean[] utilitzats) {
+        config[tramActual]=1;
+        while (config[tramActual]<=numTrams){
+            //Si no l'he utilitzat provo una combinació amb ell
+            if (!utilitzats[config[tramActual]-1]){
+                //Marco que ja he utilitzat aquest tramActual
+                utilitzats[config[tramActual]-1] = true;
+                //TODO Fer valor absolut o no?
+                long estimate = Math.abs(RaceHelper.estimate(config,tramActual));
+
+                if (tramActual == numTrams-1) {
+                    //Ja tenim tots els nombres d'esforços posats
+                    //Tenim una possible solució
+                    //Si és la millor fins ara guardem la informació
+                    //System.out.println(Arrays.toString(config) +" Estimate: "+ estimate);
+                    if (estimate<Globals.bestEstimate) {
+                        Globals.bestEstimate=estimate;
+                        Globals.bestEstimateConfig=config.clone();
+                        //System.out.println("Millor solució ");
+                    }
+                } else {
+                    if (estimate<Globals.bestEstimate){
+                        backtrackingIndividuals(config, tramActual+1, numTrams, utilitzats);
+                    } else {
+                        //Poda
+                        //System.err.println(Arrays.toString(config) +" Estimate: "+ estimate);
+                    }
+                }
+
+                //Ja he fet totes les combinacions amb l'tramActual x, el desmarco
+                utilitzats[config[tramActual]-1] = false;
+            }
+            config[tramActual]++;
+        }
+    }
 
 
     public static int gestioHoraris(ArrayList<Cursa> curses){
@@ -226,7 +288,7 @@ public class Main {
 
         //Màxim numero de curses sense que es solapin
         numCurses = IntStream.of(configCurses).sum();
-        System.out.println("\nNumero de curses: "+ numCurses);
+        System.out.println("\nNúmero de curses: "+ numCurses);
         return numCurses;
     }
 
