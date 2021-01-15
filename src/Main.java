@@ -13,15 +13,15 @@ public class Main {
         //Comparator<Cursa> comparaDurada = (Cursa r1, Cursa r2) -> (r1.compareDuration(r2));
         //curses.sort(comparaDurada);
 
-        //Branch and bound
+        //Backtracking
         cursaRelleus(atletas);
 
-        //Backtracking
-        cursesIndividuals(5);
-        System.out.println("La millor combinació per la cursa individual és: " + Arrays.toString(Globals.bestEstimateConfig));
+        //branch and bound
+        //cursesIndividuals(5);
 
         //Greedy OK
-        //gestioHoraris(curses);
+        gestioHoraris(curses);
+
 
     }
 
@@ -39,6 +39,10 @@ public class Main {
         ArrayList<Atleta> trailRunners = new ArrayList<>();
         ArrayList<Atleta> longDistance = new ArrayList<>();
 
+        float mitjanaSprinter = 0;
+        float mitjanaTrailRunner = 0;
+        float mitjanaLongDistance = 0;
+
         //Descartem i separem per tipus
         for (Atleta atleta: atletes){
             switch (atleta.getType()){
@@ -47,6 +51,7 @@ public class Main {
                         numDescartarS--;
                     } else {
                         sprinters.add(atleta);
+                        mitjanaSprinter+=atleta.getAvgVel();
                     }
                     break;
                 }
@@ -55,6 +60,7 @@ public class Main {
                         numDescartarLD--;
                     } else {
                         longDistance.add(atleta);
+                        mitjanaLongDistance+=atleta.getAvgVel();
                     }
                     break;
                 }
@@ -63,6 +69,7 @@ public class Main {
                         numDescartarTR--;
                     } else {
                         trailRunners.add(atleta);
+                        mitjanaTrailRunner+=atleta.getAvgVel();
                     }
                     break;
                 }
@@ -71,9 +78,56 @@ public class Main {
                 }
             }
         }
+        /*System.out.println("------------mitjana Sprinter");
+        for (Atleta at: sprinters){
+            System.out.println(at.getAvgVel()*100);
+        }
+        System.out.println("------------mitjana tr");
+        for (Atleta at: trailRunners){
+            System.out.println(at.getAvgVel()*100);
+        }
+        System.out.println("------------mitjana long dist");
+        for (Atleta at: longDistance){
+            System.out.println(at.getAvgVel()*100);
+        }*/
+        int[] config = new int[3];
+        boolean[] utilitzats = new boolean[numEquips];
+        backtracking(config,0, 26, utilitzats);
 
+    }
+    private static void backtracking(int[] config, int atletaActual, int numAtletes, boolean[] utilitzats) {
+        config[atletaActual]=0;
+        while (config[atletaActual]<numAtletes){
+            //Si no l'he utilitzat provo una combinació amb ell
+            if (!utilitzats[config[atletaActual]]){
+                //Marco que ja he utilitzat aquest atletaActual
+                utilitzats[config[atletaActual]] = true;
+                long estimate = Math.abs(RaceHelper.estimate(config,atletaActual));
 
+                if (atletaActual == numAtletes-1) {
+                    //Ja tenim tots els 3 atletes posats
+                    //Tenim una possible solució
+                    //Si és la millor fins ara guardem la informació
+                    System.out.println(Arrays.toString(config));
+                    /*if (estimate<Globals.bestEstimate) {
+                        Globals.bestEstimate=estimate;
+                        Globals.bestEstimateConfig=config.clone();
+                        //System.out.println("Millor solució ");
+                    }*/
+                } else {
+                   // if (estimate<Globals.bestEstimate){
+                        backtracking(config, atletaActual+1, numAtletes, utilitzats);
+                   // } else {
+                        //Poda
+                        //System.err.println(Arrays.toString(config) +" Estimate: "+ estimate);
+                   // }
+                }
 
+                //Ja he fet totes les combinacions amb l'atletaActual x, el desmarco
+                utilitzats[config[atletaActual]] = false;
+            }
+            config[atletaActual]++;
+        }
     }
 
 
@@ -99,61 +153,25 @@ public class Main {
             for (CIconfig successor:successors){
                 if (CIconfig.getNumTrams() == successor.getTramActual()){
                     //És solució
-                    System.out.println("Config: " + Arrays.toString(successor.getConfig()) + " Estimate: "+ successor.estimate());
+                    //System.out.println("Config: " + Arrays.toString(successor.getConfig()) + " Estimate: "+ successor.estimate());
                     if (successor.estimate()<bestEstimate){
-                        System.out.println("Millor configuració");
+                      //  System.out.println("Millor configuració");
                         bestEstimate= successor.estimate();
                         bestConfig= successor.getConfig();
                     }
                 } else if (successor.estimate()<bestEstimate){
                     cua.offer(successor);
-                } else {
+                } /*else {
                     System.err.println("Config: " + Arrays.toString(successor.getConfig()) + " Estimate: "+ successor.estimate());
-                }
+                }*/
             }
         }
 
         System.out.println("Best config: " + Arrays.toString(bestConfig) + " Estimate: "+ bestEstimate);
     }
 
-    private static void backtracking(int[] config, int tramActual, int numTrams, boolean[] utilitzats) {
-        config[tramActual]=1;
-        while (config[tramActual]<=numTrams){
-            //Si no l'he utilitzat provo una combinació amb ell
-            if (!utilitzats[config[tramActual]-1]){
-                //Marco que ja he utilitzat aquest tramActual
-                utilitzats[config[tramActual]-1] = true;
-                //TODO Fer valor absolut o no?
-                long estimate = Math.abs(RaceHelper.estimate(config,tramActual));
-
-                if (tramActual == numTrams-1) {
-                    //Ja tenim tots els nombres d'esforços posats
-                    //Tenim una possible solució
-                    //Si és la millor fins ara guardem la informació
-                    //System.out.println(Arrays.toString(config) +" Estimate: "+ estimate);
-                    if (estimate<Globals.bestEstimate) {
-                        Globals.bestEstimate=estimate;
-                        Globals.bestEstimateConfig=config.clone();
-                        //System.out.println("Millor solució ");
-                    }
-                } else {
-                    if (estimate<Globals.bestEstimate){
-                        backtracking(config, tramActual+1, numTrams, utilitzats);
-                    } else {
-                        //Poda
-                        //System.err.println(Arrays.toString(config) +" Estimate: "+ estimate);
-                    }
-                }
-
-                //Ja he fet totes les combinacions amb l'tramActual x, el desmarco
-                utilitzats[config[tramActual]-1] = false;
-            }
-            config[tramActual]++;
-        }
-    }
 
 
-    //TODO Preguntar si cursa pot ser > 24h
     public static int gestioHoraris(ArrayList<Cursa> curses){
         int[] configCurses = new int[curses.size()];
         boolean[] cursesDescartades = new boolean[curses.size()];
