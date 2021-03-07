@@ -6,8 +6,9 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 public class Main {
+    private static ArrayList<Atleta> atletas;
     public static void main(String[] args) throws FileNotFoundException {
-        final ArrayList<Atleta> atletas = Json.llegirAtletes();
+        atletas = Json.llegirAtletes();
         final ArrayList<Cursa> curses = Json.llegirCurses();
 
         int option;
@@ -56,7 +57,7 @@ public class Main {
         //Numero d'equips que tindrem
         int numEquips = Math.min(Atleta.getNumLongDistance(),Math.min(Atleta.getNumSprinter(), Atleta.getNumTrailRunner()));
         //Número d'atletes a descartar de cada tipus
-        int numDescartarLD=Atleta.getNumLongDistance()-numEquips;
+        /*int numDescartarLD=Atleta.getNumLongDistance()-numEquips;
         int numDescartarTR=Atleta.getNumTrailRunner()-numEquips;
         int numDescartarS=Atleta.getNumSprinter()-numEquips;
 
@@ -104,7 +105,7 @@ public class Main {
                     System.err.println("Error, tipus d'atleta desconegut");
                 }
             }
-        }
+        }*/
         /*System.out.println("------------mitjana Sprinter");
         for (Atleta at: sprinters){
             System.out.println(at.getAvgVel()*100);
@@ -117,11 +118,72 @@ public class Main {
         for (Atleta at: longDistance){
             System.out.println(at.getAvgVel()*100);
         }*/
-        int[] config = new int[3];
-        boolean[] utilitzats = new boolean[numEquips];
-        backtrackingRelleus(config,0, 26, utilitzats);
+        //int[] config = new int[3];
+        //boolean[] utilitzats = new boolean[numEquips];
+        //backtrackingRelleus(config,0, 26, utilitzats);
+
+
+        int[] config = new int[atletas.size()];
+        for (int i = 0; i < numEquips; i++) {
+            config[i] = 0;
+        }
+        boolean[] utilitzats = new boolean[atletas.size()];
+
+        backtrackingRelleusV2(config, 0, numEquips,1, utilitzats, false, false, false);
+
 
     }
+
+    private static void backtrackingRelleusV2(int[] config, int atletaActual, int numEquips, int equipActual, boolean[] utilitzats, boolean tenimTR, boolean tenimLD, boolean tenimS){
+        //config[atletaActual]=equipActual;
+        while (config[atletaActual]<=numEquips && equipActual<=numEquips){
+            if (!utilitzats[atletaActual]){
+                //utilitzats[atletaActual] = true;
+                switch (atletas.get(atletaActual).getType()){
+                    case "Sprinter":
+                        if (!tenimS){
+                            config[atletaActual]=equipActual;
+                            tenimS=true;
+                            utilitzats[atletaActual] = true;
+                        }
+                        break;
+                    case "Long distance Runner,":
+                        if (!tenimLD){
+                            config[atletaActual]=equipActual;
+                            tenimLD=true;
+                            utilitzats[atletaActual] = true;
+                        }
+                        break;
+                    case "Trail Runner":
+                        if (!tenimTR){
+                            config[atletaActual]=equipActual;
+                            tenimTR=true;
+                            utilitzats[atletaActual] = true;
+                        }
+                        break;
+                }
+                atletaActual++;
+                if (tenimLD && tenimS && tenimTR){
+                    //Ja hem fet un equip
+                    System.out.println(Arrays.toString(config));
+                    tenimLD=false;
+                    tenimS=false;
+                    tenimTR=false;
+                    equipActual++;
+                } else {
+                    //atletaActual++;
+                    if ( !tenimLD || !tenimS || !tenimTR){
+                        backtrackingRelleusV2(config, atletaActual,numEquips,equipActual,utilitzats,tenimTR,tenimLD,tenimS);
+                    } else {
+                        //PODA
+                    }
+                }
+                utilitzats[atletaActual]=false;
+            }
+            //equipActual++;
+        }
+    }
+
     //Backtracking cursa relleus KO
     private static void backtrackingRelleus(int[] config, int atletaActual, int numAtletes, boolean[] utilitzats) {
         config[atletaActual]=0;
