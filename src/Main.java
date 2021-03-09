@@ -128,56 +128,58 @@ public class Main {
             config[i] = 0;
         }
         boolean[] utilitzats = new boolean[atletas.size()];
-
-        backtrackingRelleusV2(config, 0, numEquips,1, utilitzats, false, false, false);
+        int[] equips = new int[3];
+        Arrays.fill(equips, 0);
+        backtrackingRelleusV2(config, 0, numEquips,1, utilitzats, equips);
 
 
     }
+    //Crear totes possibles combinacions
+    //Un cop creades, escollir millor solucio mirant mitjanes d'equips
+    //Podar les opcions que no siguin solucio
 
-    private static void backtrackingRelleusV2(int[] config, int atletaActual, int numEquips, int equipActual, boolean[] utilitzats, boolean tenimTR, boolean tenimLD, boolean tenimS){
+    // equips[Sprinter, LongDistance, TrailRunner);
+    private static void backtrackingRelleusV2(int[] config, int atletaActual, int numEquips, int equipActual, boolean[] utilitzats, int[] equips){
         //config[atletaActual]=equipActual;
-        while (config[atletaActual]<=numEquips && equipActual<=numEquips){
+        int equipMinim = 0;
+        while (config[atletaActual]<=numEquips && equipMinim<=numEquips){
             if (!utilitzats[atletaActual]){
-                //utilitzats[atletaActual] = true;
+                utilitzats[atletaActual] = true;
                 switch (atletas.get(atletaActual).getType()){
                     case "Sprinter":
-                        if (!tenimS){
-                            config[atletaActual]=equipActual;
-                            tenimS=true;
-                            utilitzats[atletaActual] = true;
+                        equips[0]++;
+                        if(equips[0] <= numEquips){
+                            config[atletaActual]=equips[0];
                         }
                         break;
                     case "Long distance Runner,":
-                        if (!tenimLD){
-                            config[atletaActual]=equipActual;
-                            tenimLD=true;
-                            utilitzats[atletaActual] = true;
+                        equips[1]++;
+                        if(equips[1] <= numEquips){
+                            config[atletaActual]=equips[1];
                         }
                         break;
                     case "Trail Runner":
-                        if (!tenimTR){
-                            config[atletaActual]=equipActual;
-                            tenimTR=true;
-                            utilitzats[atletaActual] = true;
+                        equips[2]++;
+                        if(equips[2] <= numEquips){
+                            config[atletaActual]=equips[2];
                         }
                         break;
                 }
-                atletaActual++;
-                if (tenimLD && tenimS && tenimTR){
+                equipMinim = Math.min(Math.min(equips[0], equips[1]), equips[2]);
+
+                if (equipMinim >= numEquips){
                     //Ja hem fet un equip
                     System.out.println(Arrays.toString(config));
-                    tenimLD=false;
-                    tenimS=false;
-                    tenimTR=false;
+                    //tenimLD=false;
+                    //tenimS=false;
+                    //tenimTR=false;
                     equipActual++;
                 } else {
-                    //atletaActual++;
-                    if ( !tenimLD || !tenimS || !tenimTR){
-                        backtrackingRelleusV2(config, atletaActual,numEquips,equipActual,utilitzats,tenimTR,tenimLD,tenimS);
-                    } else {
-                        //PODA
-                    }
+                    atletaActual++;
+                    backtrackingRelleusV2(config, atletaActual,numEquips,equipActual,utilitzats,equips);
+
                 }
+
                 utilitzats[atletaActual]=false;
             }
             //equipActual++;
