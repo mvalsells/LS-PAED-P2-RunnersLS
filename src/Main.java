@@ -130,7 +130,7 @@ public class Main {
         boolean[] utilitzats = new boolean[atletas.size()];
         int[] equips = new int[3];
         Arrays.fill(equips, 0);
-        backtrackingRelleusV2(config, 0, numEquips,1, utilitzats, equips);
+        backtrackingRelleusV2(config, 0, numEquips, utilitzats, equips);
 
 
     }
@@ -139,50 +139,49 @@ public class Main {
     //Podar les opcions que no siguin solucio
 
     // equips[Sprinter, LongDistance, TrailRunner);
-    private static void backtrackingRelleusV2(int[] config, int atletaActual, int numEquips, int equipActual, boolean[] utilitzats, int[] equips){
-        //config[atletaActual]=equipActual;
+    private static void backtrackingRelleusV2(int[] config, int atletaActual, int numEquips, boolean[] utilitzats, int[] equips){
         int equipMinim = 0;
-        while (config[atletaActual]<=numEquips && equipMinim<=numEquips){
+        while (atletaActual<atletas.size()){
             if (!utilitzats[atletaActual]){
-                utilitzats[atletaActual] = true;
-                switch (atletas.get(atletaActual).getType()){
-                    case "Sprinter":
-                        equips[0]++;
-                        if(equips[0] <= numEquips){
-                            config[atletaActual]=equips[0];
-                        }
-                        break;
-                    case "Long distance Runner,":
-                        equips[1]++;
-                        if(equips[1] <= numEquips){
-                            config[atletaActual]=equips[1];
-                        }
-                        break;
-                    case "Trail Runner":
-                        equips[2]++;
-                        if(equips[2] <= numEquips){
-                            config[atletaActual]=equips[2];
-                        }
-                        break;
-                }
+
                 equipMinim = Math.min(Math.min(equips[0], equips[1]), equips[2]);
-
-                if (equipMinim >= numEquips){
-                    //Ja hem fet un equip
+                if (/*equipMinim >= numEquips*/atletaActual==atletas.size()-1){
+                    //Ja hem fet una combinació d'equips
                     System.out.println(Arrays.toString(config));
-                    //tenimLD=false;
-                    //tenimS=false;
-                    //tenimTR=false;
-                    equipActual++;
                 } else {
-                    atletaActual++;
-                    backtrackingRelleusV2(config, atletaActual,numEquips,equipActual,utilitzats,equips);
 
+                    for (int i = 1; i <= numEquips; i++) {
+                        switch (atletas.get(atletaActual).getType()){
+                            case "Sprinter":
+                                if(equips[0] <= numEquips && i>equips[0]){
+                                    equips[0]++;
+                                    config[atletaActual]=i;
+                                }
+                                break;
+                            case "Long distance Runner,":
+                                if(equips[1] <= numEquips && i>equips[1]){
+                                    equips[1]++;
+                                    config[atletaActual]=i;
+                                }
+                                break;
+                            case "Trail Runner":
+                                if(equips[2] <= numEquips && i>equips[2]){
+                                    equips[2]++;
+                                    config[atletaActual]=i;
+                                }
+                                break;
+                        }
+
+                        utilitzats[atletaActual] = true;
+                        atletaActual++;
+                        backtrackingRelleusV2(config, atletaActual,numEquips,utilitzats,equips);
+                        atletaActual--;
+                        utilitzats[atletaActual] = false;
+                    }
                 }
-
                 utilitzats[atletaActual]=false;
+                atletaActual--;
             }
-            //equipActual++;
         }
     }
 

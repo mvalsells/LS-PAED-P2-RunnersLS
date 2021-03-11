@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class Json {
     public static ArrayList<Atleta> llegirAtletes() throws FileNotFoundException {
-        Reader read = new FileReader("Datasets/datasets-clubs/datasetS.json");
+        Reader read = new FileReader("Datasets/datasets-clubs/datasetXS.json");
         JsonArray array = JsonParser.parseReader(read).getAsJsonArray();
 
         ArrayList<Atleta> atletes = new ArrayList<Atleta>();
