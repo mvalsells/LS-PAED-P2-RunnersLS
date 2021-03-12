@@ -141,17 +141,13 @@ public class Main {
     // equips[Sprinter, LongDistance, TrailRunner);
     private static void backtrackingRelleusV2(int[] config, int atletaActual, int numEquips, boolean[] utilitzats, int[] equips){
         int equipMinim = 0;
-        while (atletaActual<atletas.size()){
-            if (!utilitzats[atletaActual]){
-
-                equipMinim = Math.min(Math.min(equips[0], equips[1]), equips[2]);
-                if (/*equipMinim >= numEquips*/atletaActual==atletas.size()-1){
+                if (atletaActual==atletas.size()){
                     //Ja hem fet una combinació d'equips
                     System.out.println(Arrays.toString(config));
                 } else {
 
                     for (int i = 1; i <= numEquips; i++) {
-                        switch (atletas.get(atletaActual).getType()){
+                      /*  switch (atletas.get(atletaActual).getType()){
                             case "Sprinter":
                                 if(equips[0] <= numEquips && i>equips[0]){
                                     equips[0]++;
@@ -170,19 +166,12 @@ public class Main {
                                     config[atletaActual]=i;
                                 }
                                 break;
-                        }
-
-                        utilitzats[atletaActual] = true;
-                        atletaActual++;
-                        backtrackingRelleusV2(config, atletaActual,numEquips,utilitzats,equips);
-                        atletaActual--;
-                        utilitzats[atletaActual] = false;
+                        }*/
+                        config[atletaActual]=i;
+                        int atletaActual2= atletaActual+1;
+                        backtrackingRelleusV2(config, atletaActual2,numEquips,utilitzats,equips);
                     }
                 }
-                utilitzats[atletaActual]=false;
-                atletaActual--;
-            }
-        }
     }
 
     //Backtracking cursa relleus KO
