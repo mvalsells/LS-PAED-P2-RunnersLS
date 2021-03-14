@@ -41,6 +41,14 @@ public class Atleta {
         }
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
     public static int getNumSprinter() {
         return numSprinter;
     }
@@ -72,4 +80,6 @@ public class Atleta {
                 ", avgVel=" + avgVel +
                 '}';
     }
+
+
 }
