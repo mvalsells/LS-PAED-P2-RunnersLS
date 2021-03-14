@@ -8,6 +8,7 @@ public class Main {
     private static ArrayList<Atleta> atletas;
     private static int[] millorConfig;
     private static float diferenciaMenor;
+
     public static void main(String[] args) throws FileNotFoundException {
         atletas = Json.llegirAtletes();
         final ArrayList<Cursa> curses = Json.llegirCurses();
@@ -15,7 +16,7 @@ public class Main {
         int option;
         Scanner scanner = new Scanner(System.in);
         do {
-            System.out.println("Menú principal\n\t1) Cursa relleus amb Backtracking\n\t2) Cursa individual amb Backtracking\n\t3) Cursa individual amb Branch and Bound\n\t4) Gestió d'horaris amb Greedy\n\t5) Sortir");
+            System.out.println("Menú principal\n\t1) Cursa relleus amb Backtracking\n\t2) Cursa individual amb Backtracking (extra)\n\t3) Cursa individual amb Branch and Bound\n\t4) Gestió d'horaris amb Greedy\n\t5) Sortir");
             System.out.print("Tria una opció: ");
             option = scanner.nextInt();
             long startTime = System.currentTimeMillis();
@@ -59,17 +60,17 @@ public class Main {
         int numEquips = Math.min(Atleta.getNumLongDistance(), Math.min(Atleta.getNumSprinter(), Atleta.getNumTrailRunner()));
 
         int[] config = new int[atletas.size()];
-        Arrays.fill(config,0);
+        Arrays.fill(config, 0);
         diferenciaMenor = Float.MAX_VALUE;
-        backtrackingRelleusV2(config, 0, numEquips);
-        System.out.println("Best: " + Arrays.toString(millorConfig));
+        backtrackingRelleus(config, 0, numEquips);
+        System.out.println("Millor configuració: " + Arrays.toString(millorConfig));
 
 
         //Printar equips
         for (int j = 1; j <= numEquips; j++) {
             System.out.print("Equip " + j + ": ");
             for (int i = 0; i < millorConfig.length; i++) {
-                if(millorConfig[i] == j){
+                if (millorConfig[i] == j) {
                     System.out.print(atletes.get(i).getName() + " " + atletes.get(i).getLastName() + ", ");
                 }
             }
@@ -77,137 +78,116 @@ public class Main {
         }
 
     }
-    //Crear totes possibles combinacions
-    //Un cop creades, escollir millor solucio mirant mitjanes d'equips
-    //Podar les opcions que no siguin solucio
 
-    // equips[Sprinter, LongDistance, TrailRunner);
-    private static void backtrackingRelleusV2(int[] config, int atletaActual, int numEquips) {
+    private static void backtrackingRelleus(int[] config, int atletaActual, int numEquips) {
         int equipMinim = 0;
 
         config[atletaActual] = 0;
-        while(config[atletaActual] <= numEquips){
-            if(atletaActual == atletas.size()-1){
+        while (config[atletaActual] <= numEquips) {
+            if (atletaActual == atletas.size() - 1) {
                 //Es solucio
                 //Ja hem fet una combinació d'equips
                 if (comprovarEquips(config, numEquips)) {
-                    //System.out.println("CONFIG:");
-                    //System.out.println(Arrays.toString(config));
                     float difMitjanes = calculDifMitjanes(config, numEquips);
-                    if (diferenciaMenor>difMitjanes){
-                        millorConfig=config.clone();
-                        diferenciaMenor=difMitjanes;
-                        //System.out.println(Arrays.toString(config) + " - " + difMitjanes + " - Millor fins ara");
+                    if (diferenciaMenor > difMitjanes) {
+                        millorConfig = config.clone();
+                        diferenciaMenor = difMitjanes;
                     }
-                } else {
-                    //System.out.println("KO");
                 }
-            }else{
-                if(comprovaPoda(config, numEquips)){
+            } else {
+                if (comprovarPoda(config, numEquips)) {
                     //Backtracking
-                    backtrackingRelleusV2(config, atletaActual + 1, numEquips);
+                    backtrackingRelleus(config, atletaActual + 1, numEquips);
 
-                }else {
+                } else {
                     //Poda
                 }
             }
             config[atletaActual]++;
-
         }
     }
 
-    private static boolean comprovaPoda(int[] config, int numEquips){
+    private static boolean comprovarPoda(int[] config, int numEquips) {
 
-        int numLD[] = new int[numEquips];
-        int numTR[] = new int[numEquips];
-        int numS[] = new int[numEquips];
+        int[] numLD = new int[numEquips];
+        int[] numTR = new int[numEquips];
+        int[] numS = new int[numEquips];
 
         for (int i = 0; i < config.length; i++) {
-            if(config[i] != 0  && config[i] <= numEquips) {
+            if (config[i] != 0 && config[i] <= numEquips) {
 
                 //Mirem que no hi hagi un atleta del mateix tipus repetit al mateix equip
                 switch (atletas.get(i).getType()) {
                     case "Sprinter":
-                        numS[config[i]-1]++;
-                        if (numS[config[i]-1] >= 2) {
+                        numS[config[i] - 1]++;
+                        if (numS[config[i] - 1] >= 2) {
                             return false;
                         }
                         break;
                     case "Long distance Runner,":
-                        numLD[config[i]-1]++;
-                        if (numLD[config[i]-1] >= 2) {
+                        numLD[config[i] - 1]++;
+                        if (numLD[config[i] - 1] >= 2) {
                             return false;
                         }
                         break;
                     case "Trail Runner":
-                        numTR[config[i]-1]++;
-                        if (numTR[config[i]-1] >= 2) {
+                        numTR[config[i] - 1]++;
+                        if (numTR[config[i] - 1] >= 2) {
                             return false;
                         }
                         break;
                 }
             }
-
         }
-
         return true;
     }
 
     private static float calculDifMitjanes(int[] config, int numEquips) {
-        float mitjanes[] = new float[numEquips];
-        Arrays.fill(mitjanes,0.0f);
-        float difMitjanes=0;
+        float[] mitjanes = new float[numEquips];
+        Arrays.fill(mitjanes, 0.0f);
+        float difMitjanes = 0;
 
         //Sumem les velocitats dels integrants de cada equip
         for (int i = 0; i < config.length; i++) {
             int equipActual = config[i];
-            if (equipActual!=0) {
+            if (equipActual != 0) {
                 mitjanes[equipActual - 1] += atletas.get(i).getAvgVel();
             }
         }
         //Dividim entre 3 per fer la mitjana de velocitat de l'equip
         for (int i = 0; i < mitjanes.length; i++) {
-            mitjanes[i] = mitjanes[i]/3;
+            mitjanes[i] = mitjanes[i] / 3;
         }
-
-        for (int i = 0; i <mitjanes.length; i++) {
+        //Sumem la difrenecia de totes les mitjanes per tenir un valor com a referencia
+        for (int i = 0; i < mitjanes.length; i++) {
             for (int j = 0; j < mitjanes.length; j++) {
-                if (i<=j){
-                    float dif = Math.abs(mitjanes[i]-mitjanes[j]);
-                    difMitjanes+=dif;
+                if (i <= j) {
+                    float dif = Math.abs(mitjanes[i] - mitjanes[j]);
+                    difMitjanes += dif;
                 }
             }
         }
         return difMitjanes;
     }
 
-    private static boolean comprovarEquips(int[] config, int numEquips){
+    private static boolean comprovarEquips(int[] config, int numEquips) {
 
-        int numLD[] = new int[numEquips];
-        int numTR[] = new int[numEquips];
-        int numS[] = new int[numEquips];
+        int[] numLD = new int[numEquips];
+        int[] numTR = new int[numEquips];
+        int[] numS = new int[numEquips];
 
         for (int i = 0; i < config.length; i++) {
-            if(config[i] != 0 ) {
-                //Mirem que no hi hagi un atleta del mateix tipus repetit al mateix equip
+            if (config[i] != 0) {
+                //Mirem quants atletes de cada tipus hi ha per equip (0 o 1 donat que si hi havien més ja hem podat)
                 switch (atletas.get(i).getType()) {
                     case "Sprinter":
-                        numS[config[i]-1]++;
-                        if (numS[config[i]-1] >= 2) {
-                            return false;
-                        }
+                        numS[config[i] - 1]++;
                         break;
                     case "Long distance Runner,":
-                        numLD[config[i]-1]++;
-                        if (numLD[config[i]-1] >= 2) {
-                            return false;
-                        }
+                        numLD[config[i] - 1]++;
                         break;
                     case "Trail Runner":
-                        numTR[config[i]-1]++;
-                        if (numTR[config[i]-1] >= 2) {
-                            return false;
-                        }
+                        numTR[config[i] - 1]++;
                         break;
                 }
             }
@@ -221,7 +201,6 @@ public class Main {
         }
         return true;
     }
-
 
 
     public static void cursesIndividuals(int numTrams, int algorisme) {
@@ -294,7 +273,6 @@ public class Main {
                         backtrackingIndividuals(config, tramActual + 1, numTrams, utilitzats);
                     } else {
                         //Poda
-                        //System.err.println(Arrays.toString(config) +" Estimate: "+ estimate);
                     }
                 }
 
@@ -315,8 +293,6 @@ public class Main {
         Comparator<Cursa> comparaDurada = (Cursa r1, Cursa r2) -> (r1.compareDuration(r2));
         curses.sort(comparaDurada);
         while (!areAllTrue(cursesDescartades)) {
-            //Comparator<Cursa> comparaDurada = (Cursa r1, Cursa r2) -> (r1.compareDuration(r2));
-            //curses.sort(comparaDurada);
             //Busquem i descartem minim
             if (!cursesDescartades[j]) {
                 //Agafem cursaMinima
