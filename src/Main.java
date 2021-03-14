@@ -60,10 +60,8 @@ public class Main {
 
         int[] config = new int[atletas.size()];
         Arrays.fill(config,0);
-        int[] equips = new int[3];
-        Arrays.fill(equips, 0);
         diferenciaMenor = Float.MAX_VALUE;
-        backtrackingRelleusV2(config, 0, numEquips, equips);
+        backtrackingRelleusV2(config, 0, numEquips);
         System.out.println("Best: " + Arrays.toString(millorConfig));
 
 
@@ -84,7 +82,7 @@ public class Main {
     //Podar les opcions que no siguin solucio
 
     // equips[Sprinter, LongDistance, TrailRunner);
-    private static void backtrackingRelleusV2(int[] config, int atletaActual, int numEquips, int[] equips) {
+    private static void backtrackingRelleusV2(int[] config, int atletaActual, int numEquips) {
         int equipMinim = 0;
 
         config[atletaActual] = 0;
@@ -107,7 +105,7 @@ public class Main {
             }else{
                 if(comprovaPoda(config, numEquips)){
                     //Backtracking
-                    backtrackingRelleusV2(config, atletaActual + 1, numEquips, equips);
+                    backtrackingRelleusV2(config, atletaActual + 1, numEquips);
 
                 }else {
                     //Poda
